@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - NokosStore</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{background:#1a1a2e;border:1px solid #7c3aed33;border-radius:20px;padding:40px;width:100%;max-width:400px;margin:20px}
+    .logo{text-align:center;font-size:1.8rem;font-weight:800;color:#7c3aed;margin-bottom:8px}
+    .subtitle{text-align:center;color:#9ca3af;font-size:.9rem;margin-bottom:30px}
+    .form-group{margin-bottom:18px}
+    label{display:block;color:#a855f7;font-size:.85rem;font-weight:600;margin-bottom:6px}
+    input{width:100%;padding:12px 15px;background:#0f0f1a;border:1px solid #7c3aed44;border-radius:10px;color:#e0e0e0;font-size:.95rem;outline:none;transition:border .2s}
+    input:focus{border-color:#7c3aed}
+    .btn{width:100%;padding:13px;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:5px}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 5px 20px #7c3aed55}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .msg{padding:12px;border-radius:10px;margin-top:15px;text-align:center;font-size:.9rem;display:none}
+    .msg.success{background:#14532d22;border:1px solid #16a34a44;color:#4ade80}
+    .msg.error{background:#450a0a22;border:1px solid #dc262644;color:#f87171}
+    .link{text-align:center;margin-top:20px;color:#9ca3af;font-size:.9rem}
+    .link a{color:#7c3aed;text-decoration:none}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">⚡ NokosStore</div>
+  <div class="subtitle">Masuk ke akun kamu</div>
+
+  <div class="form-group">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="username"/>
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Password"/>
+  </div>
+
+  <button class="btn" id="btn-login" onclick="doLogin()">Login</button>
+
+  <div class="msg" id="msg"></div>
+  <div class="link">Belum punya akun? <a href="/register">Daftar</a></div>
+</div>
+
+<script>
+async function doLogin() {
+  const btn = document.getElementById('btn-login');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!username || !password) { showMsg('Isi semua field!', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Login...';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showMsg('Berhasil masuk!', 'success');
+      setTimeout(() => window.location.href = '/dashboard', 1000);
+    } else {
+      showMsg(data.message, 'error');
+    }
+  } catch { showMsg('Error koneksi', 'error'); }
+
+  btn.disabled = false; btn.textContent = 'Login';
+}
+
+function showMsg(text, type) {
+  const msg = document.getElementById('msg');
+  msg.textContent = text;
+  msg.className = 'msg ' + type;
+  msg.style.display = 'block';
+}
+
+document.addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>

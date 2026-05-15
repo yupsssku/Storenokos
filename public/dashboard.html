@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - NokosStore</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#e0e0e0;min-height:100vh}
+    nav{background:#1a1a2e;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #7c3aed33}
+    .logo{font-size:1.3rem;font-weight:700;color:#7c3aed}
+    .nav-user{display:flex;align-items:center;gap:15px;font-size:.9rem;color:#9ca3af}
+    .btn-logout{background:transparent;border:1px solid #7c3aed44;color:#a855f7;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.85rem}
+    .container{max-width:900px;margin:0 auto;padding:25px 15px}
+    .balance-card{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #7c3aed44;border-radius:20px;padding:30px;margin-bottom:25px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .balance-card .bal-label{color:#9ca3af;font-size:.85rem;margin-bottom:5px}
+    .balance-card .bal-amount{font-size:2rem;font-weight:800;color:#a855f7}
+    .balance-card .username{font-size:.9rem;color:#7c3aed}
+    .btn{padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:.9rem;transition:all .2s}
+    .btn-primary{background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px #7c3aed44}
+    .btn-danger{background:#dc2626;color:#fff}
+    .btn-sm{padding:7px 14px;font-size:.8rem}
+    .section-title{font-size:1.1rem;font-weight:700;color:#a855f7;margin-bottom:15px;display:flex;align-items:center;gap:8px}
+    .card{background:#1a1a2e;border:1px solid #7c3aed22;border-radius:15px;padding:20px;margin-bottom:20px}
+    select,input[type=text],input[type=number]{width:100%;padding:11px 14px;background:#0f0f1a;border:1px solid #7c3aed44;border-radius:10px;color:#e0e0e0;font-size:.9rem;outline:none;margin-bottom:12px}
+    select option{background:#1a1a2e}
+    .service-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:15px}
+    .service-item{background:#0f0f1a;border:2px solid #7c3aed22;border-radius:12px;padding:15px;cursor:pointer;transition:all .2s}
+    .service-item:hover,.service-item.active{border-color:#7c3aed;background:#7c3aed11}
+    .service-item .s-name{font-weight:600;font-size:.9rem;margin-bottom:5px}
+    .service-item .s-price{color:#a855f7;font-weight:700;font-size:1rem}
+    .service-item .s-stok{font-size:.75rem;color:#9ca3af;margin-top:3px}
+    .method-tabs{display:flex;gap:10px;margin-bottom:15px}
+    .method-tab{flex:1;padding:10px;text-align:center;border:2px solid #7c3aed33;border-radius:10px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+    .method-tab.active{border-color:#7c3aed;background:#7c3aed22;color:#a855f7}
+    .msg{padding:12px;border-radius:10px;margin-top:12px;text-align:center;font-size:.9rem;display:none}
+    .msg.success{background:#14532d22;border:1px solid #16a34a44;color:#4ade80}
+    .msg.error{background:#450a0a22;border:1px solid #dc262644;color:#f87171}
+    .msg.info{background:#1e3a5f22;border:1px solid #3b82f644;color:#60a5fa}
+    .qr-box{text-align:center;padding:20px;background:#0f0f1a;border-radius:15px;border:1px solid #7c3aed33;display:none}
+    .qr-img{width:200px;height:200px;background:#fff;border-radius:10px;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .qr-img img{width:100%;height:100%}
+    .trx-item{background:#0f0f1a;border:1px solid #7c3aed22;border-radius:10px;padding:15px;margin-bottom:10px}
+    .trx-item .trx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .trx-item .trx-type{font-size:.8rem;background:#7c3aed22;color:#a855f7;padding:3px 10px;border-radius:20px}
+    .trx-item .trx-date{font-size:.75rem;color:#6b7280}
+    .trx-item .trx-info{font-size:.85rem;color:#d1d5db}
+    .badge{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+    .badge-success{background:#14532d22;color:#4ade80}
+    .badge-pending{background:#78350f22;color:#fbbf24}
+    .badge-canceled{background:#450a0a22;color:#f87171}
+    .otp-result{background:#0f0f1a;border:2px solid #7c3aed;border-radius:15px;padding:20px;text-align:center;display:none}
+    .otp-code{font-size:2.5rem;font-weight:800;color:#a855f7;letter-spacing:5px;margin:10px 0}
+    .phone-display{font-size:1.1rem;color:#e0e0e0;margin-bottom:5px}
+    .tabs{display:flex;gap:5px;margin-bottom:20px;background:#0f0f1a;border-radius:12px;padding:5px}
+    .tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s;color:#9ca3af}
+    .tab.active{background:#7c3aed;color:#fff}
+    .loader{text-align:center;padding:30px;color:#9ca3af}
+    .deposit-info{background:#7c3aed11;border:1px solid #7c3aed33;border-radius:10px;padding:12px;font-size:.85rem;color:#9ca3af;margin-bottom:15px}
+    @media(max-width:500px){.balance-card{flex-direction:column}.method-tabs{flex-direction:column}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">⚡ NokosStore</div>
+  <div class="nav-user">
+    <span id="nav-user">...</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Balance Card -->
+  <div class="balance-card">
+    <div>
+      <div class="bal-label">Saldo Kamu</div>
+      <div class="bal-amount" id="user-balance">Rp 0</div>
+      <div class="username" id="user-username">@-</div>
+    </div>
+    <button class="btn btn-primary" onclick="showTab('deposit')">+ Deposit Saldo</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('nokos')">🌍 Beli Nokos</div>
+    <div class="tab" onclick="showTab('deposit')">💳 Deposit</div>
+    <div class="tab" onclick="showTab('history')">📋 Riwayat</div>
+  </div>
+
+  <!-- TAB: NOKOS -->
+  <div id="tab-nokos">
+    <div class="card">
+      <div class="section-title">🌍 Pilih Negara</div>
+      <select id="sel-negara" onchange="loadLayanan()">
+        <option value="">-- Loading negara... --</option>
+      </select>
+
+      <div class="section-title">📱 Pilih Layanan</div>
+      <div id="layanan-list" class="service-list">
+        <div style="color:#9ca3af;font-size:.85rem">Pilih negara dulu...</div>
+      </div>
+
+      <div id="order-section" style="display:none">
+        <div class="section-title">💳 Metode Bayar</div>
+        <div class="method-tabs">
+          <div class="method-tab active" onclick="selectMethod('saldo')" id="mt-saldo">💰 Saldo</div>
+          <div class="method-tab" onclick="selectMethod('qris')" id="mt-qris">📷 QRIS</div>
+        </div>
+
+        <div id="saldo-info" class="deposit-info">
+          Saldo tersedia: <strong id="saldo-display">Rp 0</strong>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;padding:13px;font-size:1rem" onclick="buyNokos()">
+          Beli Nomor Sekarang
+        </button>
+        <div class="msg" id="msg-nokos"></div>
+      </div>
+
+      <!-- Hasil Nomor -->
+      <div class="otp-result" id="otp-result">
+        <div style="color:#9ca3af;font-size:.85rem;margin-bottom:5px">Nomor Kamu</div>
+        <div class="phone-display" id="result-phone">-</div>
+        <div style="color:#9ca3af;font-size:.8rem;margin-bottom:10px">OTP akan masuk ke nomor ini</div>
+        <div style="color:#9ca3af;font-size:.85rem;margin-bottom:8px">Kode OTP</div>
+        <div class="otp-code" id="result-otp">-</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="checkOTP()">🔄 Cek OTP</button>
+          <button class="btn btn-danger btn-sm" onclick="cancelNokos()">❌ Batalkan</button>
+        </div>
+        <div class="msg" id="msg-otp"></div>
+      </div>
+
+      <!-- QRIS Box -->
+      <div class="qr-box" id="qr-box">
+        <div style="color:#a855f7;font-weight:700;margin-bottom:10px">Scan QRIS untuk Bayar</div>
+        <div class="qr-img"><img id="qr-img" src="" alt="QRIS"/></div>
+        <div style="font-size:.85rem;color:#9ca3af;margin-bottom:15px">
+          Total bayar: <strong id="qr-amount" style="color:#a855f7">-</strong>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="checkNokosPayment()">Cek Status Pembayaran</button>
+        <div class="msg" id="msg-qr-nokos"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: DEPOSIT -->
+  <div id="tab-deposit" style="display:none">
+    <div class="card">
+      <div class="section-title">💳 Deposit Saldo</div>
+      <div class="deposit-info">Deposit akan diproses otomatis setelah pembayaran QRIS berhasil.</div>
+
+      <label style="display:block;color:#a855f7;font-size:.85rem;font-weight:600;margin-bottom:6px">Jumlah Deposit</label>
+      <input type="number" id="deposit-amount" placeholder="Minimal Rp 1.000" min="1000"/>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+        <button class="btn btn-primary btn-sm" onclick="setDeposit(10000)">10K</button>
+        <button class="btn btn-primary btn-sm" onclick="setDeposit(20000)">20K</button>
+        <button class="btn btn-primary btn-sm" onclick="setDeposit(50000)">50K</button>
+        <button class="btn btn-primary btn-sm" onclick="setDeposit(100000)">100K</button>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;padding:13px" onclick="doDeposit()">Generate QRIS</button>
+      <div class="msg" id="msg-deposit"></div>
+
+      <div class="qr-box" id="dep-qr-box">
+        <div style="color:#a855f7;font-weight:700;margin-bottom:10px">Scan QRIS untuk Deposit</div>
+        <div class="qr-img"><img id="dep-qr-img" src="" alt="QRIS"/></div>
+        <div style="font-size:.85rem;color:#9ca3af;margin-bottom:15px">
+          Total bayar: <strong id="dep-qr-amount" style="color:#a855f7">-</strong>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="checkDepositPayment()">Cek Status Pembayaran</button>
+        <div class="msg" id="msg-dep-qr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: HISTORY -->
+  <div id="tab-history" style="display:none">
+    <div class="card">
+      <div class="section-title">📋 Riwayat Transaksi</div>
+      <div id="history-list"><div class="loader">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// State
+let user = null;
+let token = localStorage.getItem('token');
+let selectedLayanan = null;
+let selectedMethod = 'saldo';
+let selectedNegara = null;
+let currentProviderOid = null;
+let currentNokosOrderId = null;
+let currentDepositOrderId = null;
+let currentNokosQrisOrderId = null;
+
+// Init
+(async function init() {
+  if (!token) return window.location.href = '/login';
+  await loadUser();
+  loadNegara();
+})();
+
+async function loadUser() {
+  try {
+    const res = await fetch('/api/get-user', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (!data.success) { localStorage.clear(); window.location.href = '/login'; return; }
+    user = data.user;
+    document.getElementById('nav-user').textContent = '@' + user.username;
+    document.getElementById('user-balance').textContent = 'Rp ' + (user.balance || 0).toLocaleString();
+    document.getElementById('user-username').textContent = '@' + user.username;
+    document.getElementById('saldo-display').textContent = 'Rp ' + (user.balance || 0).toLocaleString();
+  } catch { localStorage.clear(); window.location.href = '/login'; }
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login';
+}
+
+function showTab(tab) {
+  ['nokos','deposit','history'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === tab ? 'block' : 'none';
+    document.querySelector(`.tab:nth-child(${['nokos','deposit','history'].indexOf(t)+1})`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'history') loadHistory();
+}
+
+// NEGARA
+async function loadNegara() {
+  const sel = document.getElementById('sel-negara');
+  sel.innerHTML = '<option value="">-- Loading... --</option>';
+  try {
+    const res = await fetch('/api/nokos/negara');
+    const data = await res.json();
+    if (data.success && data.data) {
+      sel.innerHTML = '<option value="">-- Pilih Negara --</option>';
+      data.data.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.flag + ' ' + n.name;
+        opt.dataset.operator = n.operator || '';
+        sel.appendChild(opt);
+      });
+    }
+  } catch {
+    sel.innerHTML = '<option value="">Gagal load negara</option>';
+  }
+}
+
+async function loadLayanan() {
+  const sel = document.getElementById('sel-negara');
+  const negaraId = sel.value;
+  selectedNegara = { id: negaraId, operator: sel.selectedOptions[0]?.dataset.operator || '' };
+
+  const list = document.getElementById('layanan-list');
+  document.getElementById('order-section').style.display = 'none';
+  document.getElementById('otp-result').style.display = 'none';
+  document.getElementById('qr-box').style.display = 'none';
+  selectedLayanan = null;
+
+  if (!negaraId) { list.innerHTML = '<div style="color:#9ca3af;font-size:.85rem">Pilih negara dulu...</div>'; return; }
+
+  list.innerHTML = '<div class="loader">Loading layanan...</div>';
+  try {
+    const res = await fetch('/api/nokos/layanan', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ negara_id: negaraId })
+    });
+    const data = await res.json();
+    if (data.success && data.data.length > 0) {
+      list.innerHTML = '';
+      data.data.forEach(l => {
+        const div = document.createElement('div');
+        div.className = 'service-item';
+        div.innerHTML = `
+          <div class="s-name">${l.nama}</div>
+          <div class="s-price">Rp ${l.harga.toLocaleString()}</div>
+          <div class="s-stok">Stok: ${l.stok}</div>`;
+        div.onclick = () => {
+          document.querySelectorAll('.service-item').forEach(x => x.classList.remove('active'));
+          div.classList.add('active');
+          selectedLayanan = l;
+          document.getElementById('order-section').style.display = 'block';
+          document.getElementById('saldo-display').textContent = 'Rp ' + (user?.balance || 0).toLocaleString();
+        };
+        list.appendChild(div);
+      });
+    } else {
+      list.innerHTML = '<div style="color:#9ca3af;font-size:.85rem">Tidak ada layanan tersedia.</div>';
+    }
+  } catch {
+    list.innerHTML = '<div style="color:#f87171;font-size:.85rem">Gagal memuat layanan.</div>';
+  }
+}
+
+function selectMethod(m) {
+  selectedMethod = m;
+  document.getElementById('mt-saldo').classList.toggle('active', m === 'saldo');
+  document.getElementById('mt-qris').classList.toggle('active', m === 'qris');
+  document.getElementById('saldo-info').style.display = m === 'saldo' ? 'block' : 'none';
+}
+
+async function buyNokos() {
+  if (!selectedLayanan) { showMsg('msg-nokos', 'Pilih layanan dulu!', 'error'); return; }
+  if (!selectedNegara?.id) { showMsg('msg-nokos', 'Pilih negara dulu!', 'error'); return; }
+
+  const sel = document.getElementById('sel-negara');
+  const namaOpt = sel.selectedOptions[0]?.textContent || '';
+
+  showMsg('msg-nokos', 'Memproses...', 'info');
+
+  try {
+    const res = await fetch('/api/buy-nokos', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        token,
+        negara_id: selectedNegara.id,
+        negara_nama: namaOpt,
+        operator: selectedNegara.operator || '',
+        layanan_kode: selectedLayanan.kode,
+        layanan_nama: selectedLayanan.nama,
+        harga: selectedLayanan.harga,
+        method: selectedMethod
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      if (selectedMethod === 'saldo') {
+        currentProviderOid = data.data.provider_order_id;
+        currentNokosOrderId = data.data.order_id;
+        document.getElementById('result-phone').textContent = data.data.nomor;
+        document.getElementById('result-otp').textContent = 'Menunggu OTP...';
+        document.getElementById('otp-result').style.display = 'block';
+        document.getElementById('qr-box').style.display = 'none';
+        showMsg('msg-nokos', 'Nomor berhasil didapat!', 'success');
+        await loadUser();
+      } else {
+        currentNokosQrisOrderId = data.order_id;
+        const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_string)}`;
+        document.getElementById('qr-img').src = qrImg;
+        document.getElementById('qr-amount').textContent = 'Rp ' + data.pay_amount.toLocaleString();
+        document.getElementById('qr-box').style.display = 'block';
+        showMsg('msg-nokos', 'QRIS berhasil digenerate!', 'success');
+      }
+    } else {
+      showMsg('msg-nokos', data.message || 'Gagal!', 'error');
+    }
+  } catch {
+    showMsg('msg-nokos', 'Error koneksi server', 'error');
+  }
+}
+
+async function checkOTP() {
+  if (!currentProviderOid) return;
+  showMsg('msg-otp', 'Mengecek OTP...', 'info');
+  try {
+    const res = await fetch('/api/nokos/check-otp', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token, provider_order_id: currentProviderOid })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('result-otp').textContent = data.otp;
+      showMsg('msg-otp', 'OTP berhasil didapat!', 'success');
+    } else {
+      showMsg('msg-otp', data.message || 'OTP belum masuk', 'error');
+    }
+  } catch {
+    showMsg('msg-otp', 'Error koneksi', 'error');
+  }
+}
+
+async function cancelNokos() {
+  if (!currentProviderOid) return;
+  if (!confirm('Yakin mau batalkan order? Saldo akan dikembalikan jika bisa di-refund.')) return;
+  showMsg('msg-otp', 'Membatalkan...', 'info');
+  try {
+    const res = await fetch('/api/nokos/cancel', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token, provider_order_id: currentProviderOid })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('otp-result').style.display = 'none';
+      showMsg('msg-nokos', `Order dibatalkan. Refund: Rp ${(data.refunded || 0).toLocaleString()}`, 'success');
+      await loadUser();
+    } else {
+      showMsg('msg-otp', data.message, 'error');
+    }
+  } catch {
+    showMsg('msg-otp', 'Error koneksi', 'error');
+  }
+}
+
+async function checkNokosPayment() {
+  if (!currentNokosQrisOrderId) return;
+  showMsg('msg-qr-nokos', 'Mengecek...', 'info');
+  try {
+    const res = await fetch('/api/check-nokos-payment', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ order_id: currentNokosQrisOrderId })
+    });
+    const data = await res.json();
+    if (data.success && data.status === 'success') {
+      document.getElementById('qr-box').style.display = 'none';
+      currentProviderOid = data.data.provider_order_id;
+      document.getElementById('result-phone').textContent = data.data.nomor;
+      document.getElementById('result-otp').textContent = 'Menunggu OTP...';
+      document.getElementById('otp-result').style.display = 'block';
+      showMsg('msg-nokos', 'Pembayaran berhasil! Nomor didapat.', 'success');
+    } else {
+      showMsg('msg-qr-nokos', 'Pembayaran belum masuk', 'info');
+    }
+  } catch {
+    showMsg('msg-qr-nokos', 'Error koneksi', 'error');
+  }
+}
+
+// DEPOSIT
+function setDeposit(amount) {
+  document.getElementById('deposit-amount').value = amount;
+}
+
+async function doDeposit() {
+  const amount = parseInt(document.getElementById('deposit-amount').value);
+  if (!amount || amount < 1000) { showMsg('msg-deposit', 'Minimal deposit Rp 1.000', 'error'); return; }
+
+  showMsg('msg-deposit', 'Membuat QRIS...', 'info');
+  try {
+    const res = await fetch('/api/deposit', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token, amount })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentDepositOrderId = data.order_id;
+      const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_string)}`;
+      document.getElementById('dep-qr-img').src = qrImg;
+      document.getElementById('dep-qr-amount').textContent = 'Rp ' + data.pay_amount.toLocaleString();
+      document.getElementById('dep-qr-box').style.display = 'block';
+      showMsg('msg-deposit', 'QRIS berhasil digenerate!', 'success');
+    } else {
+      showMsg('msg-deposit', data.message || 'Gagal generate QRIS', 'error');
+    }
+  } catch {
+    showMsg('msg-deposit', 'Error koneksi server', 'error');
+  }
+}
+
+async function checkDepositPayment() {
+  if (!currentDepositOrderId) return;
+  showMsg('msg-dep-qr', 'Mengecek...', 'info');
+  try {
+    const res = await fetch('/api/check-payment', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ order_id: currentDepositOrderId })
+    });
+    const data = await res.json();
+    if (data.success && data.status === 'success') {
+      showMsg('msg-dep-qr', 'Deposit berhasil!', 'success');
+      document.getElementById('dep-qr-box').style.display = 'none';
+      await loadUser();
+    } else {
+      showMsg('msg-dep-qr', 'Pembayaran belum masuk', 'info');
+    }
+  } catch {
+    showMsg('msg-dep-qr', 'Error koneksi', 'error');
+  }
+}
+
+// HISTORY
+async function loadHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<div class="loader">Loading...</div>';
+  try {
+    const res = await fetch('/api/history', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (data.success && data.data.length > 0) {
+      list.innerHTML = '';
+      data.data.forEach(t => {
+        const typeLabel = t.type === 'deposit' ? '💳 Deposit' : t.type === 'buy_nokos' ? '🌍 Nokos' : t.type;
+        const statusClass = t.status === 'success' ? 'success' : t.status === 'pending' ? 'pending' : 'canceled';
+        const info = t.product_data?.nomor ? `Nomor: ${t.product_data.nomor} | ${t.product_data.layanan_nama || ''}` : t.product_data?.layanan_nama || '-';
+        list.innerHTML += `
+          <div class="trx-item">
+            <div class="trx-head">
+              <span class="trx-type">${typeLabel}</span>
+              <span class="badge badge-${statusClass}">${t.status}</span>
+            </div>
+            <div class="trx-info">${info}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <span style="font-weight:700;color:#a855f7">Rp ${t.amount.toLocaleString()}</span>
+              <span class="trx-date">${new Date(t.date).toLocaleString('id-ID')}</span>
+            </div>
+            ${t.product_data?.otp ? `<div style="margin-top:8px;padding:8px;background:#7c3aed22;border-radius:8px;text-align:center;color:#a855f7;font-weight:700;font-size:1.1rem">OTP: ${t.product_data.otp}</div>` : ''}
+            ${t.product_data?.nomor && !t.product_data?.otp ? `<div style="margin-top:8px;display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="recheckOTP('${t.provider_oid}')">Cek OTP</button></div>` : ''}
+          </div>`;
+      });
+    } else {
+      list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:30px">Belum ada transaksi</div>';
+    }
+  } catch {
+    list.innerHTML = '<div style="text-align:center;color:#f87171;padding:20px">Gagal memuat riwayat</div>';
+  }
+}
+
+async function recheckOTP(providerOid) {
+  try {
+    const res = await fetch('/api/nokos/check-otp', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token, provider_order_id: providerOid })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('OTP: ' + data.otp);
+      loadHistory();
+    } else {
+      alert(data.message || 'OTP belum masuk');
+    }
+  } catch {
+    alert('Error koneksi');
+  }
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(() => { if(el.textContent === text) el.style.display = 'none'; }, 4000);
+}
+</script>
+</body>
+</html>

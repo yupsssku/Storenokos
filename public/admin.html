@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - NokosStore</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#e0e0e0;min-height:100vh}
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .card{background:#1a1a2e;border:1px solid #7c3aed33;border-radius:20px;padding:35px;width:100%;max-width:380px;margin:20px}
+    .logo{text-align:center;font-size:1.5rem;font-weight:800;color:#7c3aed;margin-bottom:25px}
+    input{width:100%;padding:12px;background:#0f0f1a;border:1px solid #7c3aed44;border-radius:10px;color:#e0e0e0;font-size:.95rem;outline:none;margin-bottom:12px}
+    .btn{width:100%;padding:12px;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer}
+    .msg{padding:10px;border-radius:8px;margin-top:10px;text-align:center;font-size:.85rem;display:none}
+    .msg.error{background:#450a0a22;border:1px solid #dc262644;color:#f87171}
+    nav{background:#1a1a2e;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #7c3aed33}
+    .logo-nav{font-size:1.2rem;font-weight:700;color:#7c3aed}
+    .btn-sm{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:.8rem;font-weight:600}
+    .btn-danger{background:#dc2626;color:#fff}
+    .container{max-width:1000px;margin:0 auto;padding:25px 15px}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:25px}
+    .stat{background:#1a1a2e;border:1px solid #7c3aed33;border-radius:15px;padding:20px;text-align:center}
+    .stat .num{font-size:1.8rem;font-weight:800;color:#a855f7}
+    .stat .lbl{color:#9ca3af;font-size:.8rem;margin-top:5px}
+    .tabs{display:flex;gap:5px;margin-bottom:20px;background:#1a1a2e;border-radius:12px;padding:5px;border:1px solid #7c3aed22}
+    .tab{flex:1;padding:9px;text-align:center;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;color:#9ca3af;transition:all .2s}
+    .tab.active{background:#7c3aed;color:#fff}
+    .section-card{background:#1a1a2e;border:1px solid #7c3aed22;border-radius:15px;padding:20px;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;font-size:.8rem}
+    th{background:#0f0f1a;padding:10px;text-align:left;color:#a855f7;border-bottom:1px solid #7c3aed22}
+    td{padding:10px;border-bottom:1px solid #7c3aed11;vertical-align:top}
+    .badge{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+    .badge-success{background:#14532d22;color:#4ade80}
+    .badge-pending{background:#78350f22;color:#fbbf24}
+    .topup-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:15px}
+    .topup-form input{margin:0;width:auto;flex:1}
+    .topup-form button{padding:12px 20px;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap}
+    .msg-admin{padding:10px;border-radius:8px;margin-top:10px;font-size:.85rem;display:none}
+    .msg-admin.success{background:#14532d22;border:1px solid #16a34a44;color:#4ade80}
+    .msg-admin.error{background:#450a0a22;border:1px solid #dc262644;color:#f87171}
+    @media(max-width:600px){table{font-size:.75rem}th,td{padding:7px}}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN PANEL -->
+<div class="login-wrap" id="login-panel">
+  <div class="card">
+    <div class="logo">🔐 Admin Panel</div>
+    <input type="password" id="admin-pass" placeholder="Password Admin"/>
+    <button class="btn" onclick="adminLogin()">Masuk</button>
+    <div class="msg error" id="msg-login"></div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-dashboard" style="display:none">
+  <nav>
+    <div class="logo-nav">🔐 Admin - NokosStore</div>
+    <button class="btn-sm btn-danger" onclick="adminLogout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat"><div class="num" id="st-users">-</div><div class="lbl">Total Member</div></div>
+      <div class="stat"><div class="num" id="st-trx">-</div><div class="lbl">Transaksi Sukses</div></div>
+      <div class="stat"><div class="num" id="st-income">-</div><div class="lbl">Total Omset</div></div>
+      <div class="stat"><div class="num" id="st-balance">-</div><div class="lbl">Saldo Beredar</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showAdminTab('users')">👥 Users</div>
+      <div class="tab" onclick="showAdminTab('trx')">📋 Transaksi</div>
+    </div>
+
+    <!-- USERS -->
+    <div id="admin-tab-users">
+      <div class="section-card">
+        <div style="font-size:1rem;font-weight:700;color:#a855f7;margin-bottom:15px">Tambah Saldo User</div>
+        <div class="topup-form">
+          <input type="text" id="topup-username" placeholder="Username"/>
+          <input type="number" id="topup-amount" placeholder="Nominal (Rp)"/>
+          <button onclick="topupUser()">+ Tambah Saldo</button>
+        </div>
+        <div class="msg-admin" id="msg-topup"></div>
+      </div>
+
+      <div class="section-card">
+        <div style="font-size:1rem;font-weight:700;color:#a855f7;margin-bottom:15px">Daftar Users</div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Username</th><th>Nama</th><th>Saldo</th><th>HP</th><th>Aksi</th></tr></thead>
+            <tbody id="user-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSAKSI -->
+    <div id="admin-tab-trx" style="display:none">
+      <div class="section-card">
+        <div style="font-size:1rem;font-weight:700;color:#a855f7;margin-bottom:15px">Transaksi Terbaru</div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Order ID</th><th>User</th><th>Tipe</th><th>Nominal</th><th>Status</th><th>Produk</th><th>Tanggal</th></tr></thead>
+            <tbody id="trx-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminKey = '';
+
+function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  fetch('/api/admin/login', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ password: pass })
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      adminKey = pass;
+      document.getElementById('login-panel').style.display = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+      loadAdminStats();
+      loadUsers();
+    } else {
+      const msg = document.getElementById('msg-login');
+      msg.textContent = 'Password salah!';
+      msg.style.display = 'block';
+    }
+  });
+}
+
+function adminLogout() {
+  adminKey = '';
+  document.getElementById('login-panel').style.display = 'flex';
+  document.getElementById('admin-dashboard').style.display = 'none';
+}
+
+function showAdminTab(tab) {
+  document.getElementById('admin-tab-users').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('admin-tab-trx').style.display = tab === 'trx' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['users','trx'][i] === tab));
+  if (tab === 'trx') loadTrx();
+}
+
+function adminPost(url, extra = {}) {
+  return fetch(url, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ password: adminKey, ...extra })
+  }).then(r => r.json());
+}
+
+async function loadAdminStats() {
+  const data = await adminPost('/api/admin/stats');
+  if (data.success) {
+    document.getElementById('st-users').textContent = data.total_users;
+    document.getElementById('st-trx').textContent = data.total_trx;
+    document.getElementById('st-income').textContent = 'Rp ' + data.total_income.toLocaleString();
+    document.getElementById('st-balance').textContent = 'Rp ' + data.total_balance.toLocaleString();
+  }
+}
+
+async function loadUsers() {
+  const data = await adminPost('/api/admin/users');
+  const tbody = document.getElementById('user-table');
+  if (data.success) {
+    tbody.innerHTML = data.data.map(u => `
+      <tr>
+        <td><strong>@${u.username}</strong></td>
+        <td>${u.fullname}</td>
+        <td style="color:#a855f7;font-weight:700">Rp ${(u.balance||0).toLocaleString()}</td>
+        <td>${u.phone}</td>
+        <td><button class="btn-sm btn-danger" onclick="deleteUser('${u.username}')">Hapus</button></td>
+      </tr>`).join('');
+  }
+}
+
+async function topupUser() {
+  const username = document.getElementById('topup-username').value.trim();
+  const amount = parseInt(document.getElementById('topup-amount').value);
+  const msg = document.getElementById('msg-topup');
+
+  if (!username || !amount) { showAdminMsg('msg-topup', 'Isi semua field!', 'error'); return; }
+
+  const data = await adminPost('/api/admin/topup-balance', { username, amount });
+  showAdminMsg('msg-topup', data.message, data.success ? 'success' : 'error');
+  if (data.success) { loadUsers(); loadAdminStats(); }
+}
+
+async function deleteUser(username) {
+  if (!confirm(`Yakin hapus user @${username}?`)) return;
+  const data = await adminPost('/api/admin/delete-user', { username });
+  alert(data.message);
+  loadUsers();
+}
+
+async function loadTrx() {
+  const data = await adminPost('/api/admin/transactions');
+  const tbody = document.getElementById('trx-table');
+  if (data.success) {
+    tbody.innerHTML = data.data.map(t => {
+      const info = t.product_data?.nomor ? `📱 ${t.product_data.nomor}` : t.product_data?.layanan_nama || '-';
+      return `<tr>
+        <td style="font-size:.75rem">${t.order_id}</td>
+        <td>@${t.username}</td>
+        <td>${t.type}</td>
+        <td style="color:#a855f7;font-weight:700">Rp ${(t.amount||0).toLocaleString()}</td>
+        <td><span class="badge badge-${t.status === 'success' ? 'success' : 'pending'}">${t.status}</span></td>
+        <td style="font-size:.75rem">${info}</td>
+        <td style="font-size:.75rem">${new Date(t.date).toLocaleString('id-ID')}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function showAdminMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg-admin ' + type;
+  el.style.display = 'block';
+}
+
+document.addEventListener('keypress', e => { if(e.key==='Enter') adminLogin(); });
+</script>
+</body>
+</html>
