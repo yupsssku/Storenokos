@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - NokosStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#080810; --surface:#0e0e1c; --card:#12122a;
+      --border:rgba(99,102,241,0.15); --primary:#6366f1;
+      --primary-light:#818cf8; --text:#f1f5f9; --muted:#64748b;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .glow{position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px;width:100%;max-width:420px;position:relative;z-index:1;animation:fadeUp .5s ease both;}
+    .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem;text-decoration:none;margin-bottom:32px;transition:color .2s;}
+    .back:hover{color:var(--primary);}
+    .logo{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:6px;}
+    .logo span{color:var(--primary);}
+    .subtitle{color:var(--muted);font-size:.9rem;margin-bottom:32px;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:.82rem;font-weight:600;color:var(--primary-light);margin-bottom:6px;letter-spacing:.3px;}
+    input{width:100%;padding:13px 15px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.95rem;outline:none;transition:all .2s;font-family:'DM Sans',sans-serif;}
+    input:focus{border-color:var(--primary);background:rgba(99,102,241,0.05);}
+    input::placeholder{color:var(--muted);}
+    .btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px;font-family:'DM Sans',sans-serif;letter-spacing:.3px;}
+    .btn:hover:not(:disabled){background:var(--primary-light);transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.35);}
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
+    .msg{padding:12px 15px;border-radius:10px;margin-top:14px;font-size:.875rem;display:none;text-align:center;}
+    .msg.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#34d399;}
+    .msg.error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;}
+    .link{text-align:center;margin-top:22px;font-size:.875rem;color:var(--muted);}
+    .link a{color:var(--primary-light);text-decoration:none;font-weight:500;}
+    .link a:hover{text-decoration:underline;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="card">
+  <a href="/" class="back">← Kembali</a>
+  <div class="logo">Nokos<span>Store</span></div>
+  <div class="subtitle">Masuk ke akun kamu</div>
+  <div class="form-group">
+    <label>USERNAME</label>
+    <input type="text" id="username" placeholder="username kamu" autocomplete="username"/>
+  </div>
+  <div class="form-group">
+    <label>PASSWORD</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+  </div>
+  <button class="btn" id="btn-login" onclick="doLogin()">Masuk</button>
+  <div class="msg" id="msg"></div>
+  <div class="link">Belum punya akun? <a href="/register">Daftar sekarang</a></div>
+</div>
+<script>
+async function doLogin() {
+  const btn = document.getElementById('btn-login');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (!username || !password) { showMsg('Isi semua field!', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('token', data.token);
+      showMsg('Berhasil! Mengalihkan...', 'success');
+      setTimeout(() => window.location.href = '/dashboard', 900);
+    } else {
+      showMsg(data.message, 'error');
+      btn.disabled = false; btn.textContent = 'Masuk';
+    }
+  } catch {
+    showMsg('Gagal koneksi ke server', 'error');
+    btn.disabled = false; btn.textContent = 'Masuk';
+  }
+}
+function showMsg(text, type) {
+  const el = document.getElementById('msg');
+  el.textContent = text; el.className = 'msg '+type; el.style.display = 'block';
+}
+document.addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+if (localStorage.getItem('token')) window.location.href = '/dashboard';
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NokosStore - Nomor Virtual OTP Murah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080810;
+      --surface: #0e0e1c;
+      --card: #12122a;
+      --border: rgba(99,102,241,0.15);
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+    ::selection { background:var(--primary); color:#fff; }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity:0.4;
+    }
+
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding:18px 40px; display:flex; justify-content:space-between; align-items:center;
+      background:rgba(8,8,16,0.85); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+    }
+    .logo { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:-0.5px; }
+    .logo span { color:var(--primary); }
+    .nav-links { display:flex; gap:8px; }
+    .nav-links a {
+      padding:8px 20px; border-radius:8px; text-decoration:none;
+      font-size:.875rem; font-weight:500; transition:all .2s;
+    }
+    .nav-links a.outline { border:1px solid var(--border); color:var(--muted); }
+    .nav-links a.outline:hover { border-color:var(--primary); color:var(--primary); }
+    .nav-links a.solid { background:var(--primary); color:#fff; }
+    .nav-links a.solid:hover { background:var(--primary-light); }
+
+    .hero {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:120px 20px 60px; text-align:center; position:relative;
+    }
+    .hero-glow {
+      position:absolute; width:600px; height:600px; border-radius:50%;
+      background:radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+      top:50%; left:50%; transform:translate(-50%,-60%); pointer-events:none;
+    }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 16px; border-radius:100px;
+      background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3);
+      font-size:.78rem; font-weight:600; color:var(--primary-light);
+      letter-spacing:0.5px; text-transform:uppercase; margin-bottom:28px;
+      animation: fadeUp .6s ease both;
+    }
+    .hero h1 {
+      font-family:'Syne',sans-serif; font-size:clamp(2.5rem,6vw,4.5rem);
+      font-weight:800; line-height:1.1; letter-spacing:-2px;
+      margin-bottom:20px; animation: fadeUp .7s .1s ease both;
+    }
+    .hero h1 .grad {
+      background:linear-gradient(135deg, #818cf8 0%, #06b6d4 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .hero p {
+      font-size:1.1rem; color:var(--muted); max-width:480px;
+      line-height:1.7; margin-bottom:40px; animation: fadeUp .8s .2s ease both;
+    }
+    .hero-cta { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; animation: fadeUp .9s .3s ease both; }
+    .btn-hero {
+      padding:14px 32px; border-radius:10px; font-size:.95rem;
+      font-weight:600; text-decoration:none; border:none; cursor:pointer;
+      transition:all .25s; display:inline-block;
+    }
+    .btn-hero.primary {
+      background:var(--primary); color:#fff;
+      box-shadow:0 0 30px rgba(99,102,241,0.35);
+    }
+    .btn-hero.primary:hover { background:var(--primary-light); transform:translateY(-2px); box-shadow:0 0 40px rgba(99,102,241,0.5); }
+    .btn-hero.ghost { background:transparent; color:var(--text); border:1px solid var(--border); }
+    .btn-hero.ghost:hover { border-color:var(--primary); color:var(--primary); }
+
+    .stats-bar {
+      display:flex; justify-content:center; gap:60px; flex-wrap:wrap;
+      padding:40px 20px; animation: fadeUp 1s .4s ease both;
+    }
+    .stat-item { text-align:center; }
+    .stat-item .num {
+      font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800;
+      background:linear-gradient(135deg, #818cf8, #06b6d4);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .stat-item .lbl { font-size:.8rem; color:var(--muted); margin-top:4px; letter-spacing:0.5px; text-transform:uppercase; }
+
+    .divider { width:1px; background:var(--border); height:50px; align-self:center; }
+
+    .features {
+      max-width:1100px; margin:0 auto; padding:60px 20px 100px;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;
+    }
+    .feature-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:32px;
+      transition:all .3s; position:relative; overflow:hidden;
+    }
+    .feature-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity:0; transition:.3s;
+    }
+    .feature-card:hover { border-color:rgba(99,102,241,0.4); transform:translateY(-4px); }
+    .feature-card:hover::before { opacity:1; }
+    .feature-icon {
+      width:48px; height:48px; border-radius:12px;
+      background:rgba(99,102,241,0.1); display:flex; align-items:center;
+      justify-content:center; font-size:1.4rem; margin-bottom:20px;
+    }
+    .feature-card h3 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:10px; }
+    .feature-card p { font-size:.875rem; color:var(--muted); line-height:1.7; }
+
+    footer {
+      text-align:center; padding:30px; border-top:1px solid var(--border);
+      color:var(--muted); font-size:.8rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    @media(max-width:600px) {
+      nav { padding:15px 20px; }
+      .stats-bar { gap:30px; }
+      .divider { display:none; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Nokos<span>Store</span></div>
+  <div class="nav-links">
+    <a href="/login" class="outline">Masuk</a>
+    <a href="/register" class="solid">Daftar</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">✦ Nomor Virtual OTP Terpercaya</div>
+  <h1>Verifikasi OTP<br/><span class="grad">Lebih Mudah & Murah</span></h1>
+  <p>Beli nomor virtual dari ratusan negara untuk verifikasi OTP semua platform. Proses instan, harga terjangkau.</p>
+  <div class="hero-cta">
+    <a href="/register" class="btn-hero primary">Mulai Gratis →</a>
+    <a href="/login" class="btn-hero ghost">Sudah punya akun</a>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="num" id="stat-member">0</div>
+    <div class="lbl">Member Aktif</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat-item">
+    <div class="num" id="stat-trx">0</div>
+    <div class="lbl">Transaksi Sukses</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat-item">
+    <div class="num">100+</div>
+    <div class="lbl">Negara Tersedia</div>
+  </div>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🌍</div>
+    <h3>Multi Negara</h3>
+    <p>Ratusan pilihan negara dan operator. Temukan nomor yang paling kompatibel dengan layanan yang kamu butuhkan.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Instan & Cepat</h3>
+    <p>Nomor langsung tersedia setelah pembayaran sukses. Tidak ada delay, tidak ada antrian.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">💳</div>
+    <h3>Bayar QRIS atau Saldo</h3>
+    <p>Deposit saldo akun atau langsung bayar QRIS per transaksi. Fleksibel sesuai kebutuhan.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔒</div>
+    <h3>Aman & Terpercaya</h3>
+    <p>Data akun terenkripsi dengan standar industri. Transaksi terlindungi sepenuhnya.</p>
+  </div>
+</div>
+
+<footer>© 2024 NokosStore · All Rights Reserved</footer>
+
+<script>
+  fetch('/api/stats').then(r=>r.json()).then(d=>{
+    if(!d.success) return;
+    const animateNum = (el, target) => {
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString('id-ID');
+        if(current >= target) clearInterval(timer);
+      }, 30);
+    };
+    animateNum(document.getElementById('stat-member'), d.member);
+    animateNum(document.getElementById('stat-trx'), d.sukses);
+  });
+</script>
+</body>
+</html>

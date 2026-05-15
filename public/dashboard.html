@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - NokosStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#080810;--surface:#0e0e1c;--card:#12122a;--card2:#0f0f20;
+      --border:rgba(99,102,241,0.15);--border2:rgba(99,102,241,0.08);
+      --primary:#6366f1;--primary-light:#818cf8;--accent:#06b6d4;
+      --text:#f1f5f9;--muted:#64748b;--success:#10b981;--danger:#ef4444;
+      --warn:#f59e0b;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(8,8,16,0.92);backdrop-filter:blur(20px);
+      padding:14px 24px;display:flex;justify-content:space-between;align-items:center;
+      border-bottom:1px solid var(--border);
+    }
+    .logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;}
+    .logo span{color:var(--primary);}
+    .nav-right{display:flex;align-items:center;gap:12px;}
+    .nav-bal{font-size:.85rem;color:var(--muted);}
+    .nav-bal strong{color:var(--primary-light);}
+    .btn-logout{padding:7px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+    .btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+    .container{max-width:960px;margin:0 auto;padding:28px 16px;}
+
+    /* BALANCE CARD */
+    .balance-hero{
+      background:linear-gradient(135deg, #0f0f25 0%, #12122a 100%);
+      border:1px solid var(--border);border-radius:20px;padding:32px;
+      margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;
+      flex-wrap:wrap;gap:20px;position:relative;overflow:hidden;
+    }
+    .balance-hero::before{
+      content:'';position:absolute;top:-60px;right:-60px;
+      width:200px;height:200px;border-radius:50%;
+      background:radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%);
+    }
+    .bal-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+    .bal-amount{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;letter-spacing:-1px;}
+    .bal-user{font-size:.85rem;color:var(--muted);margin-top:6px;}
+    .bal-user strong{color:var(--primary-light);}
+    .btn-dep{
+      padding:13px 28px;background:var(--primary);color:#fff;border:none;
+      border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;
+      transition:all .25s;font-family:'DM Sans',sans-serif;white-space:nowrap;
+    }
+    .btn-dep:hover{background:var(--primary-light);transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.3);}
+
+    /* TABS */
+    .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:5px;margin-bottom:22px;}
+    .tab{
+      flex:1;padding:10px;text-align:center;border-radius:10px;
+      cursor:pointer;font-size:.85rem;font-weight:500;color:var(--muted);
+      transition:all .2s;border:none;background:transparent;font-family:'DM Sans',sans-serif;
+    }
+    .tab.active{background:var(--primary);color:#fff;font-weight:600;}
+
+    /* CARDS */
+    .panel{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px;margin-bottom:16px;}
+    .panel-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+
+    /* FORM */
+    select,input[type=text],input[type=number]{
+      width:100%;padding:12px 14px;
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:10px;color:var(--text);font-size:.9rem;outline:none;
+      margin-bottom:14px;transition:all .2s;font-family:'DM Sans',sans-serif;
+    }
+    select:focus,input:focus{border-color:var(--primary);background:rgba(99,102,241,0.05);}
+    select option{background:#12122a;}
+    select::placeholder,input::placeholder{color:var(--muted);}
+
+    /* LAYANAN GRID */
+    .service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;}
+    .service-card{
+      background:var(--card2);border:1.5px solid var(--border2);
+      border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;
+    }
+    .service-card:hover{border-color:rgba(99,102,241,0.35);}
+    .service-card.active{border-color:var(--primary);background:rgba(99,102,241,0.08);}
+    .service-card .s-name{font-weight:600;font-size:.88rem;margin-bottom:6px;}
+    .service-card .s-price{color:var(--primary-light);font-weight:700;font-size:1rem;}
+    .service-card .s-stok{font-size:.73rem;color:var(--muted);margin-top:4px;}
+
+    /* METODE */
+    .method-row{display:flex;gap:10px;margin-bottom:16px;}
+    .method-btn{
+      flex:1;padding:12px;border-radius:10px;
+      border:1.5px solid var(--border);background:transparent;
+      color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;
+      transition:all .2s;font-family:'DM Sans',sans-serif;
+    }
+    .method-btn.active{border-color:var(--primary);color:var(--primary-light);background:rgba(99,102,241,0.08);}
+
+    /* INFO BOX */
+    .info-box{
+      background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);
+      border-radius:10px;padding:12px 16px;font-size:.85rem;
+      color:var(--muted);margin-bottom:14px;
+    }
+    .info-box strong{color:var(--primary-light);}
+
+    /* MAIN BUTTON */
+    .btn-main{
+      width:100%;padding:14px;background:var(--primary);color:#fff;
+      border:none;border-radius:12px;font-size:.95rem;font-weight:600;
+      cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif;
+    }
+    .btn-main:hover:not(:disabled){background:var(--primary-light);transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.3);}
+    .btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    /* MESSAGES */
+    .msg{padding:12px 16px;border-radius:10px;margin-top:14px;font-size:.875rem;display:none;}
+    .msg.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#34d399;}
+    .msg.error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;}
+    .msg.info{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);color:var(--primary-light);}
+
+    /* OTP RESULT */
+    .otp-result{
+      background:rgba(99,102,241,0.06);border:1.5px solid var(--primary);
+      border-radius:16px;padding:28px;text-align:center;display:none;margin-top:16px;
+    }
+    .otp-phone{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:6px;}
+    .otp-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .otp-code{
+      font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;
+      letter-spacing:8px;color:var(--primary-light);
+      background:rgba(99,102,241,0.1);border-radius:10px;padding:16px;
+      margin:10px 0;word-break:break-all;
+    }
+    .otp-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+    .btn-sm{
+      padding:10px 20px;border-radius:10px;border:none;
+      font-size:.85rem;font-weight:600;cursor:pointer;
+      transition:all .2s;font-family:'DM Sans',sans-serif;
+    }
+    .btn-check{background:var(--primary);color:#fff;}
+    .btn-check:hover{background:var(--primary-light);}
+    .btn-cancel{background:transparent;border:1px solid rgba(239,68,68,0.4);color:#f87171;}
+    .btn-cancel:hover{background:rgba(239,68,68,0.1);}
+
+    /* QRIS BOX */
+    .qr-panel{
+      background:var(--card2);border:1px solid var(--border);
+      border-radius:16px;padding:28px;text-align:center;display:none;margin-top:16px;
+    }
+    .qr-wrap{
+      width:200px;height:200px;background:#fff;border-radius:12px;
+      margin:0 auto 18px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .qr-wrap img{width:100%;height:100%;}
+    .qr-amount{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--primary-light);margin-bottom:4px;}
+    .qr-note{font-size:.8rem;color:var(--muted);margin-bottom:18px;}
+    .btn-check-pay{
+      padding:11px 26px;background:var(--primary);color:#fff;
+      border:none;border-radius:10px;font-size:.88rem;font-weight:600;
+      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;
+    }
+    .btn-check-pay:hover{background:var(--primary-light);}
+
+    /* DEPOSIT */
+    .amount-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .chip{
+      padding:8px 16px;background:rgba(99,102,241,0.08);
+      border:1px solid var(--border);border-radius:8px;
+      font-size:.82rem;font-weight:600;cursor:pointer;color:var(--primary-light);
+      transition:all .2s;
+    }
+    .chip:hover{background:rgba(99,102,241,0.18);border-color:var(--primary);}
+
+    /* HISTORY */
+    .trx-item{
+      background:var(--card2);border:1px solid var(--border2);
+      border-radius:12px;padding:16px;margin-bottom:10px;
+    }
+    .trx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .trx-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:4px 12px;border-radius:100px;font-size:.75rem;font-weight:600;
+    }
+    .trx-badge.deposit{background:rgba(6,182,212,0.1);color:#22d3ee;border:1px solid rgba(6,182,212,0.25);}
+    .trx-badge.nokos{background:rgba(99,102,241,0.1);color:var(--primary-light);border:1px solid rgba(99,102,241,0.25);}
+    .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+    .status-dot.success{background:var(--success);}
+    .status-dot.pending{background:var(--warn);}
+    .status-dot.canceled{background:var(--danger);}
+    .status-text{font-size:.75rem;font-weight:600;}
+    .status-text.success{color:var(--success);}
+    .status-text.pending{color:var(--warn);}
+    .status-text.canceled{color:var(--danger);}
+    .trx-info{font-size:.85rem;color:var(--muted);margin-bottom:8px;}
+    .trx-bottom{display:flex;justify-content:space-between;align-items:center;}
+    .trx-amount{font-family:'Syne',sans-serif;font-weight:700;color:var(--primary-light);}
+    .trx-date{font-size:.75rem;color:var(--muted);}
+    .otp-badge{
+      background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);
+      border-radius:8px;padding:8px 14px;margin-top:10px;
+      font-size:.9rem;font-weight:700;color:#34d399;text-align:center;
+      letter-spacing:3px;
+    }
+
+    .loader-text{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
+
+    @media(max-width:580px){
+      .balance-hero{padding:22px;}
+      .bal-amount{font-size:1.8rem;}
+      .panel{padding:18px;}
+      .otp-code{font-size:2rem;letter-spacing:4px;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Nokos<span>Store</span></div>
+  <div class="nav-right">
+    <div class="nav-bal">Saldo: <strong id="nav-bal">Rp 0</strong></div>
+    <button class="btn-logout" onclick="logout()">Keluar</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- BALANCE HERO -->
+  <div class="balance-hero">
+    <div>
+      <div class="bal-label">Saldo Kamu</div>
+      <div class="bal-amount" id="user-balance">Rp 0</div>
+      <div class="bal-user">Halo, <strong id="user-name">-</strong> 👋</div>
+    </div>
+    <button class="btn-dep" onclick="switchTab('deposit')">+ Deposit Saldo</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('nokos')">🌍 Beli Nokos</button>
+    <button class="tab" onclick="switchTab('deposit')">💳 Deposit</button>
+    <button class="tab" onclick="switchTab('history')">📋 Riwayat</button>
+  </div>
+
+  <!-- TAB NOKOS -->
+  <div id="tab-nokos">
+    <div class="panel">
+      <div class="panel-title">🌍 Pilih Negara</div>
+      <select id="sel-negara" onchange="loadLayanan()">
+        <option value="">— Memuat negara... —</option>
+      </select>
+
+      <div class="panel-title">📱 Pilih Layanan</div>
+      <div id="layanan-grid" class="service-grid">
+        <div class="loader-text">Pilih negara terlebih dahulu</div>
+      </div>
+
+      <div id="order-area" style="display:none">
+        <div class="panel-title">💳 Metode Bayar</div>
+        <div class="method-row">
+          <button class="method-btn active" id="mt-saldo" onclick="setMethod('saldo')">💰 Saldo Akun</button>
+          <button class="method-btn" id="mt-qris" onclick="setMethod('qris')">📷 QRIS</button>
+        </div>
+        <div class="info-box" id="saldo-info">
+          Saldo tersedia: <strong id="saldo-val">Rp 0</strong>
+        </div>
+        <button class="btn-main" onclick="buyNokos()">Beli Nomor Sekarang</button>
+        <div class="msg" id="msg-nokos"></div>
+      </div>
+
+      <!-- OTP RESULT -->
+      <div class="otp-result" id="otp-result">
+        <div class="otp-label">Nomor Virtual Kamu</div>
+        <div class="otp-phone" id="res-phone">-</div>
+        <div class="otp-label" style="margin-top:16px">Kode OTP</div>
+        <div class="otp-code" id="res-otp">Menunggu OTP...</div>
+        <div class="otp-actions">
+          <button class="btn-sm btn-check" onclick="checkOTP()">🔄 Cek OTP</button>
+          <button class="btn-sm btn-cancel" onclick="cancelNokos()">✕ Batalkan</button>
+        </div>
+        <div class="msg" id="msg-otp"></div>
+      </div>
+
+      <!-- QRIS NOKOS -->
+      <div class="qr-panel" id="qr-nokos">
+        <div class="otp-label">Total Pembayaran</div>
+        <div class="qr-amount" id="qr-nokos-amount">-</div>
+        <div class="qr-note">Scan QRIS dengan e-wallet atau mobile banking</div>
+        <div class="qr-wrap"><img id="qr-nokos-img" src="" alt="QRIS"/></div>
+        <button class="btn-check-pay" onclick="checkNokosPayment()">Cek Status Pembayaran</button>
+        <div class="msg" id="msg-qr-nokos"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB DEPOSIT -->
+  <div id="tab-deposit" style="display:none">
+    <div class="panel">
+      <div class="panel-title">💳 Deposit Saldo</div>
+      <div class="info-box">Deposit akan langsung masuk ke saldo setelah pembayaran QRIS sukses.</div>
+      <label style="display:block;font-size:.82rem;font-weight:600;color:var(--primary-light);margin-bottom:8px;letter-spacing:.3px;">JUMLAH DEPOSIT</label>
+      <input type="number" id="dep-amount" placeholder="Minimal Rp 1.000"/>
+      <div class="amount-chips">
+        <span class="chip" onclick="setDepAmount(10000)">10K</span>
+        <span class="chip" onclick="setDepAmount(20000)">20K</span>
+        <span class="chip" onclick="setDepAmount(50000)">50K</span>
+        <span class="chip" onclick="setDepAmount(100000)">100K</span>
+        <span class="chip" onclick="setDepAmount(200000)">200K</span>
+      </div>
+      <button class="btn-main" onclick="doDeposit()">Generate QRIS</button>
+      <div class="msg" id="msg-dep"></div>
+      <div class="qr-panel" id="qr-dep" style="margin-top:16px">
+        <div class="otp-label">Total Pembayaran</div>
+        <div class="qr-amount" id="qr-dep-amount">-</div>
+        <div class="qr-note">Scan QRIS dengan e-wallet atau mobile banking</div>
+        <div class="qr-wrap"><img id="qr-dep-img" src="" alt="QRIS"/></div>
+        <button class="btn-check-pay" onclick="checkDepPayment()">Cek Status Pembayaran</button>
+        <div class="msg" id="msg-dep-qr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB HISTORY -->
+  <div id="tab-history" style="display:none">
+    <div class="panel">
+      <div class="panel-title">📋 Riwayat Transaksi</div>
+      <div id="history-list"><div class="loader-text">Memuat...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('token');
+let user = null;
+let selLayanan = null;
+let selNegara = null;
+let payMethod = 'saldo';
+let curProviderOid = null;
+let curNokosQrisId = null;
+let curDepOrderId = null;
+
+if (!token) window.location.href = '/login';
+
+(async () => {
+  await loadUser();
+  loadNegara();
+})();
+
+async function loadUser() {
+  try {
+    const res = await fetch('/api/get-user', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (!data.success) { localStorage.clear(); window.location.href='/login'; return; }
+    user = data.user;
+    const bal = 'Rp '+formatNum(user.balance||0);
+    document.getElementById('user-balance').textContent = bal;
+    document.getElementById('nav-bal').textContent = bal;
+    document.getElementById('user-name').textContent = user.fullname || user.username;
+    document.getElementById('saldo-val').textContent = bal;
+  } catch { localStorage.clear(); window.location.href='/login'; }
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href='/login';
+}
+
+function switchTab(tab) {
+  ['nokos','deposit','history'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['nokos','deposit','history'][i]===tab);
+  });
+  if (tab==='history') loadHistory();
+}
+
+// ── NEGARA ──
+async function loadNegara() {
+  const sel = document.getElementById('sel-negara');
+  try {
+    const res = await fetch('/api/nokos/negara');
+    const data = await res.json();
+    if (data.success && data.data) {
+      sel.innerHTML = '<option value="">— Pilih Negara —</option>';
+      data.data.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n.id;
+        o.textContent = (n.flag||'🌐')+' '+n.name;
+        o.dataset.op = n.operator||'';
+        sel.appendChild(o);
+      });
+    } else {
+      sel.innerHTML = '<option value="">Gagal memuat negara</option>';
+    }
+  } catch {
+    sel.innerHTML = '<option value="">Error koneksi</option>';
+  }
+}
+
+async function loadLayanan() {
+  const sel = document.getElementById('sel-negara');
+  const negaraId = sel.value;
+  selLayanan = null;
+  selNegara = { id: negaraId, op: sel.selectedOptions[0]?.dataset.op||'' };
+
+  const grid = document.getElementById('layanan-grid');
+  document.getElementById('order-area').style.display='none';
+  document.getElementById('otp-result').style.display='none';
+  document.getElementById('qr-nokos').style.display='none';
+
+  if (!negaraId) { grid.innerHTML='<div class="loader-text">Pilih negara terlebih dahulu</div>'; return; }
+  grid.innerHTML='<div class="loader-text">Memuat layanan...</div>';
+
+  try {
+    const res = await fetch('/api/nokos/layanan', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ negara_id: negaraId })
+    });
+    const data = await res.json();
+    if (data.success && data.data.length>0) {
+      grid.innerHTML='';
+      data.data.forEach(l => {
+        const div = document.createElement('div');
+        div.className='service-card';
+        div.innerHTML=`
+          <div class="s-name">${l.nama}</div>
+          <div class="s-price">Rp ${formatNum(l.harga)}</div>
+          <div class="s-stok">Stok: ${l.stok}</div>`;
+        div.onclick=()=>{
+          grid.querySelectorAll('.service-card').forEach(c=>c.classList.remove('active'));
+          div.classList.add('active');
+          selLayanan=l;
+          document.getElementById('order-area').style.display='block';
+          document.getElementById('saldo-val').textContent='Rp '+formatNum(user?.balance||0);
+        };
+        grid.appendChild(div);
+      });
+    } else {
+      grid.innerHTML='<div class="loader-text">Tidak ada layanan tersedia untuk negara ini</div>';
+    }
+  } catch {
+    grid.innerHTML='<div class="loader-text">Gagal memuat layanan</div>';
+  }
+}
+
+function setMethod(m) {
+  payMethod=m;
+  document.getElementById('mt-saldo').classList.toggle('active',m==='saldo');
+  document.getElementById('mt-qris').classList.toggle('active',m==='qris');
+  document.getElementById('saldo-info').style.display=m==='saldo'?'block':'none';
+}
+
+async function buyNokos() {
+  if (!selLayanan) { showMsg('msg-nokos','Pilih layanan terlebih dahulu!','error'); return; }
+  if (!selNegara?.id) { showMsg('msg-nokos','Pilih negara terlebih dahulu!','error'); return; }
+
+  const sel = document.getElementById('sel-negara');
+  const namaOpt = sel.selectedOptions[0]?.textContent||'';
+
+  showMsg('msg-nokos','Memproses pesanan...','info');
+
+  try {
+    const res = await fetch('/api/buy-nokos', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        token, negara_id: selNegara.id, negara_nama: namaOpt,
+        operator: selNegara.op||'',
+        layanan_kode: selLayanan.kode, layanan_nama: selLayanan.nama,
+        harga: selLayanan.harga, method: payMethod
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (payMethod==='saldo') {
+        curProviderOid = data.data.provider_order_id;
+        document.getElementById('res-phone').textContent = data.data.nomor;
+        document.getElementById('res-otp').textContent = 'Menunggu OTP...';
+        document.getElementById('otp-result').style.display='block';
+        document.getElementById('qr-nokos').style.display='none';
+        showMsg('msg-nokos','Nomor berhasil didapat!','success');
+        await loadUser();
+      } else {
+        curNokosQrisId = data.order_id;
+        document.getElementById('qr-nokos-amount').textContent='Rp '+formatNum(data.pay_amount);
+        document.getElementById('qr-nokos-img').src=qrUrl(data.qr_string);
+        document.getElementById('qr-nokos').style.display='block';
+        document.getElementById('otp-result').style.display='none';
+        showMsg('msg-nokos','QRIS berhasil dibuat!','success');
+      }
+    } else {
+      showMsg('msg-nokos', data.message||'Gagal order!','error');
+    }
+  } catch { showMsg('msg-nokos','Gagal koneksi ke server','error'); }
+}
+
+async function checkOTP() {
+  if (!curProviderOid) return;
+  showMsg('msg-otp','Mengecek OTP...','info');
+  try {
+    const res = await fetch('/api/nokos/check-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, provider_order_id: curProviderOid })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('res-otp').textContent = data.otp;
+      showMsg('msg-otp','OTP berhasil diterima!','success');
+    } else {
+      showMsg('msg-otp', data.message||'OTP belum masuk','error');
+    }
+  } catch { showMsg('msg-otp','Error koneksi','error'); }
+}
+
+async function cancelNokos() {
+  if (!curProviderOid) return;
+  if (!confirm('Yakin ingin membatalkan order ini? Saldo akan dikembalikan jika ada refund dari provider.')) return;
+  showMsg('msg-otp','Membatalkan...','info');
+  try {
+    const res = await fetch('/api/nokos/cancel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, provider_order_id: curProviderOid })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('otp-result').style.display='none';
+      showMsg('msg-nokos',`Order dibatalkan. Refund: Rp ${formatNum(data.refunded||0)}`,'success');
+      await loadUser();
+    } else {
+      showMsg('msg-otp', data.message,'error');
+    }
+  } catch { showMsg('msg-otp','Error koneksi','error'); }
+}
+
+async function checkNokosPayment() {
+  if (!curNokosQrisId) return;
+  showMsg('msg-qr-nokos','Mengecek pembayaran...','info');
+  try {
+    const res = await fetch('/api/check-nokos-payment', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ order_id: curNokosQrisId })
+    });
+    const data = await res.json();
+    if (data.success && data.status==='success') {
+      curProviderOid = data.data.provider_order_id;
+      document.getElementById('res-phone').textContent = data.data.nomor;
+      document.getElementById('res-otp').textContent = 'Menunggu OTP...';
+      document.getElementById('qr-nokos').style.display='none';
+      document.getElementById('otp-result').style.display='block';
+      showMsg('msg-nokos','Pembayaran sukses! Nomor berhasil didapat.','success');
+    } else {
+      showMsg('msg-qr-nokos','Pembayaran belum masuk, coba lagi','info');
+    }
+  } catch { showMsg('msg-qr-nokos','Error koneksi','error'); }
+}
+
+// ── DEPOSIT ──
+function setDepAmount(n) { document.getElementById('dep-amount').value=n; }
+
+async function doDeposit() {
+  const amount = parseInt(document.getElementById('dep-amount').value);
+  if (!amount||amount<1000) { showMsg('msg-dep','Minimal deposit Rp 1.000','error'); return; }
+  showMsg('msg-dep','Membuat QRIS...','info');
+  try {
+    const res = await fetch('/api/deposit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, amount })
+    });
+    const data = await res.json();
+    if (data.success) {
+      curDepOrderId = data.order_id;
+      document.getElementById('qr-dep-amount').textContent='Rp '+formatNum(data.pay_amount);
+      document.getElementById('qr-dep-img').src=qrUrl(data.qr_string);
+      document.getElementById('qr-dep').style.display='block';
+      showMsg('msg-dep','QRIS berhasil dibuat!','success');
+    } else {
+      showMsg('msg-dep', data.message||'Gagal generate QRIS','error');
+    }
+  } catch { showMsg('msg-dep','Gagal koneksi ke server','error'); }
+}
+
+async function checkDepPayment() {
+  if (!curDepOrderId) return;
+  showMsg('msg-dep-qr','Mengecek pembayaran...','info');
+  try {
+    const res = await fetch('/api/check-payment', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ order_id: curDepOrderId })
+    });
+    const data = await res.json();
+    if (data.success && data.status==='success') {
+      showMsg('msg-dep-qr','Deposit berhasil masuk!','success');
+      document.getElementById('qr-dep').style.display='none';
+      await loadUser();
+    } else {
+      showMsg('msg-dep-qr','Pembayaran belum masuk, coba lagi','info');
+    }
+  } catch { showMsg('msg-dep-qr','Error koneksi','error'); }
+}
+
+// ── HISTORY ──
+async function loadHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML='<div class="loader-text">Memuat riwayat...</div>';
+  try {
+    const res = await fetch('/api/history', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (data.success && data.data.length>0) {
+      list.innerHTML = data.data.map(t => {
+        const isDeposit = t.type==='deposit';
+        const badgeCls = isDeposit?'deposit':'nokos';
+        const badgeTxt = isDeposit?'💳 Deposit':'🌍 Nokos';
+        const statCls = t.status;
+        const info = t.product_data?.nomor
+          ? `${t.product_data.nomor} · ${t.product_data.layanan_nama||''}`
+          : (t.product_data?.layanan_nama || (isDeposit?'Top-up saldo':'—'));
+        return `<div class="trx-item">
+          <div class="trx-top">
+            <span class="trx-badge ${badgeCls}">${badgeTxt}</span>
+            <span style="display:flex;align-items:center;gap:5px">
+              <span class="status-dot ${statCls}"></span>
+              <span class="status-text ${statCls}">${t.status}</span>
+            </span>
+          </div>
+          <div class="trx-info">${info}</div>
+          <div class="trx-bottom">
+            <span class="trx-amount">Rp ${formatNum(t.amount||0)}</span>
+            <span class="trx-date">${fmtDate(t.date)}</span>
+          </div>
+          ${t.product_data?.otp?`<div class="otp-badge">OTP: ${t.product_data.otp}</div>`:''}
+          ${(t.product_data?.nomor&&!t.product_data?.otp)?`
+            <div style="margin-top:10px">
+              <button class="btn-sm btn-check" onclick="recheckOTP('${t.provider_oid}')">🔄 Cek OTP</button>
+            </div>`:''}
+        </div>`;
+      }).join('');
+    } else {
+      list.innerHTML='<div class="loader-text">Belum ada transaksi</div>';
+    }
+  } catch { list.innerHTML='<div class="loader-text">Gagal memuat riwayat</div>'; }
+}
+
+async function recheckOTP(oid) {
+  try {
+    const res = await fetch('/api/nokos/check-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, provider_order_id: oid })
+    });
+    const data = await res.json();
+    alert(data.success ? 'OTP: '+data.otp : data.message||'OTP belum masuk');
+    if (data.success) loadHistory();
+  } catch { alert('Error koneksi'); }
+}
+
+// ── UTILS ──
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent=text; el.className='msg '+type; el.style.display='block';
+  if (type==='success') setTimeout(()=>{ if(el.textContent===text) el.style.display='none'; },4000);
+}
+function formatNum(n) { return Number(n).toLocaleString('id-ID'); }
+function qrUrl(str) { return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(str)}`; }
+function fmtDate(d) { return new Date(d).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+</script>
+</body>
+</html>
